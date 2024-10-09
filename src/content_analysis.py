@@ -138,6 +138,7 @@ def save_results(results):
         with open(file_path, 'w') as f:
             json.dump(results, f, indent=2)
         logging.info(f"Content analysis results saved to {file_path}")
+        print(f"Content analysis results file path: {file_path}")
     except IOError as e:
         logging.error(f"Error saving content analysis results: {e}")
 
