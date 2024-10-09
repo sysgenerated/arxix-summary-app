@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArXiv AI/ML Daily Summary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8">ArXiv AI/ML Daily Summary - {{ date }}</h1>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Summary</h2>
+            <p class="text-gray-700">{{ content.summary }}</p>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Top Articles</h2>
+            <div class="space-y-4">
+                {% for article in content.top_articles.split('\n') %}
+                    <p class="text-gray-700">{{ article }}</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Trends</h2>
+            <div class="space-y-4">
+                {% for trend in content.trends.split('\n') %}
+                    <p class="text-gray-700">{{ trend }}</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <img src="summary_wordcloud.png" alt="Summary Word Cloud" class="w-full max-w-2xl mx-auto">
+    </div>
+</body>
+</html>

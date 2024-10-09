@@ -1,0 +1,12 @@
+requests==2.26.0
+google-generativeai
+matplotlib
+wordcloud
+beautifulsoup4
+markdown
+networkx
+nltk
+arxiv
+jinja2
+tweepy
+pytest
