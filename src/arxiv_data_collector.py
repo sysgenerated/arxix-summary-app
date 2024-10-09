@@ -76,10 +76,8 @@ def parse_arxiv_response(xml_string):
         papers.append(paper)
     return papers
 
-def save_papers(papers, date=None):
-    if date is None:
-        date = datetime.now().date()
-    filename = os.path.join(DATA_DIR, f"papers_{date.strftime('%Y-%m-%d')}.json")
+def save_papers(papers):
+    filename = os.path.join(DATA_DIR, "latest_papers.json")
     with open(filename, 'w') as f:
         json.dump(papers, f, indent=2)
     logging.info(f"Saved {len(papers)} papers to {filename}")
