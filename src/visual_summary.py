@@ -23,14 +23,11 @@ else:
 def download_nltk_data():
     print("Downloading necessary NLTK data...")
     try:
-        nltk.download('punkt')
-        nltk.download('stopwords')
-        nltk.download('punkt_tab')
+        nltk.download('punkt', quiet=True)
+        nltk.download('stopwords', quiet=True)
     except Exception as e:
         print(f"Error downloading NLTK data: {e}")
-        print("Attempting alternative download method...")
-        import subprocess
-        subprocess.call(['/home/misterscientist/.conda/envs/arxiv-summary/bin/python', '-m', 'nltk.downloader', 'punkt', 'stopwords', 'punkt_tab'])
+        print("Continuing without NLTK data. Some functionality may be limited.")
 
 download_nltk_data()
 

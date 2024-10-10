@@ -16,7 +16,10 @@ def setup_logging():
     )
 
 # Configure Gemini API
-genai.configure(api_key=GEMINI_API_KEY)
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    raise ValueError("GEMINI_API_KEY is not set. Please set the environment variable.")
 
 # Initialize Gemini model
 model = genai.GenerativeModel('gemini-1.5-flash')
