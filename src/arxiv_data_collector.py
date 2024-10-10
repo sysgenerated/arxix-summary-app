@@ -6,6 +6,7 @@ import os
 import logging
 from config import CATEGORIES, MAX_RESULTS, DATA_DIR, LOG_FILE
 import time
+import pytz
 
 # Set up logging
 logging.basicConfig(
@@ -19,59 +20,65 @@ logging.basicConfig(
 
 BASE_URL = "http://export.arxiv.org/api/query?"
 
-def get_last_run_date():
-    last_run_file = os.path.join(DATA_DIR, 'last_run_date.txt')
-    if os.path.exists(last_run_file):
-        with open(last_run_file, 'r') as f:
-            return datetime.strptime(f.read().strip(), '%Y-%m-%d').date()
-    return datetime.now().date() - timedelta(days=1)
-
-def save_last_run_date(date):
-    last_run_file = os.path.join(DATA_DIR, 'last_run_date.txt')
-    with open(last_run_file, 'w') as f:
-        f.write(date.strftime('%Y-%m-%d'))
+def get_date_range():
+    pst = pytz.timezone('US/Pacific')
+    now = datetime.now(pst)
+    today = now.date()
+    two_days_ago = today - timedelta(days=2)
+    return two_days_ago, today
 
 def create_query(start_date, end_date):
-    return f"(cat:{' OR cat:'.join(CATEGORIES)}) AND submittedDate:[{start_date.strftime('%Y%m%d')}000000 TO {end_date.strftime('%Y%m%d')}235959]"
+    categories = ' OR '.join([f'cat:{cat}' for cat in CATEGORIES])
+    return f"({categories}) AND submittedDate:[{start_date.strftime('%Y%m%d')}000000 TO {end_date.strftime('%Y%m%d')}235959]"
 
 def get_request_params(query):
     return {
         'search_query': query,
         'max_results': MAX_RESULTS,
         'sortBy': 'submittedDate',
-        'sortOrder': 'ascending'
+        'sortOrder': 'descending'
     }
 
-def fetch_papers(start_date, end_date, max_retries=3):
+def fetch_papers(start_date, end_date):
     query = create_query(start_date, end_date)
     params = get_request_params(query)
-
-    logging.info(f"Fetching papers from {start_date} to {end_date}")
+    
+    logging.info(f"Fetching papers submitted from {start_date} to {end_date} (PST)")
+    logging.info(f"Query: {query}")
+    logging.info(f"Params: {params}")
+    
+    max_retries = 3
+    retry_delay = 5  # seconds
     
     for attempt in range(max_retries):
         try:
-            response = requests.get(BASE_URL, params=params, timeout=30)
+            response = requests.get(BASE_URL, params=params)
             response.raise_for_status()
-            return parse_arxiv_response(response.text)
+            logging.info(f"Response status code: {response.status_code}")
+            logging.info(f"Response content (first 500 characters): {response.text[:500]}")
+            root = ET.fromstring(response.text)
+            papers = parse_arxiv_response(root)
+            logging.info(f"Number of papers fetched: {len(papers)}")
+            return papers
         except requests.exceptions.RequestException as e:
             logging.warning(f"Attempt {attempt + 1} failed: {str(e)}")
-            if attempt == max_retries - 1:
-                raise
-            time.sleep(5)  # Wait for 5 seconds before retrying
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay)
+            else:
+                logging.error("Max retries reached. Unable to fetch papers.")
+                return []
 
-def parse_arxiv_response(xml_string):
-    root = ET.fromstring(xml_string)
-    namespace = {'atom': 'http://www.w3.org/2005/Atom'}
+def parse_arxiv_response(root):
     papers = []
-    for entry in root.findall('atom:entry', namespace):
+    for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
         paper = {
-            'title': entry.find('atom:title', namespace).text.strip(),
-            'authors': [author.find('atom:name', namespace).text for author in entry.findall('atom:author', namespace)],
-            'summary': entry.find('atom:summary', namespace).text.strip(),
-            'categories': [category.get('term') for category in entry.findall('atom:category', namespace)],
-            'published': entry.find('atom:published', namespace).text,
-            'updated': entry.find('atom:updated', namespace).text,
-            'link': entry.find('atom:id', namespace).text
+            'id': entry.find('{http://www.w3.org/2005/Atom}id').text,
+            'title': entry.find('{http://www.w3.org/2005/Atom}title').text,
+            'summary': entry.find('{http://www.w3.org/2005/Atom}summary').text,
+            'authors': [author.find('{http://www.w3.org/2005/Atom}name').text for author in entry.findall('{http://www.w3.org/2005/Atom}author')],
+            'categories': [category.get('term') for category in entry.findall('{http://www.w3.org/2005/Atom}category')],
+            'published': entry.find('{http://www.w3.org/2005/Atom}published').text,
+            'updated': entry.find('{http://www.w3.org/2005/Atom}updated').text,
         }
         papers.append(paper)
     return papers
@@ -82,27 +89,18 @@ def save_papers(papers):
         json.dump(papers, f, indent=2)
     logging.info(f"Saved {len(papers)} papers to {filename}")
 
-def get_query_dates(last_run_date):
-    today = datetime.now().date()
-    if today.weekday() == 0:  # Monday
-        # If it's Monday, include Friday, Saturday, and Sunday
-        start_date = today - timedelta(days=3)
-        end_date = today
-    else:
-        start_date = last_run_date
-        end_date = today
-    return start_date, end_date
-
 def main():
-    last_run_date = get_last_run_date()
-    start_date, end_date = get_query_dates(last_run_date)
-
+    start_date, end_date = get_date_range()
+    logging.info(f"Fetching papers from {start_date} to {end_date} (PST)")
     papers = fetch_papers(start_date, end_date)
+    
     if papers:
         save_papers(papers)
-        save_last_run_date(end_date)
+        logging.info(f"Saved {len(papers)} papers")
     else:
-        logging.warning(f"No papers found from {start_date} to {end_date}")
+        logging.warning(f"No papers found from {start_date} to {end_date} (PST)")
+    
+    logging.info("Paper collection process completed")
 
 if __name__ == "__main__":
     main()

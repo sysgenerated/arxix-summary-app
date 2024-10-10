@@ -1,7 +1,8 @@
 import logging
 import sys
 from datetime import datetime
-from arxiv_data_collector import main as collect_papers
+import pytz
+from arxiv_data_collector import main as collect_papers, get_date_range
 from content_analysis import run_content_analysis
 from visual_summary import create_visual_summary
 from website_generator import generate_website
@@ -18,6 +19,11 @@ def run_pipeline():
         
         # Step 1: Collect papers
         logging.info("Collecting papers...")
+        start_date, end_date = get_date_range()
+        pst = pytz.timezone('US/Pacific')
+        now = datetime.now(pst)
+        logging.info(f"Current time: {now.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+        logging.info(f"Fetching papers from {start_date} to {end_date} (PST)")
         collect_papers()
         
         # Step 2: Analyze content

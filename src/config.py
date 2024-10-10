@@ -1,5 +1,6 @@
 import os
 import logging
+from dotenv import load_dotenv
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,6 +27,11 @@ PAPERS_FILE = 'daily_papers.json'
 
 # Name of the log file
 LOG_FILE = 'arxiv_collector.log'
+
+# Load .env file if it exists
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 # Gemini API Key
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')

@@ -10,3 +10,5 @@ arxiv
 jinja2
 tweepy
 pytest
+python-dotenv==0.19.1
+pytz==2023.3
