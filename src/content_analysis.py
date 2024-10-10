@@ -22,7 +22,8 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
     logging.info("Gemini API configured successfully")
 else:
-    logging.error("GEMINI_API_KEY is not set. Gemini API will not be available.")
+    logging.error("API key is not set. Gemini API will not be available.")
+    raise ValueError("API key is not set. Cannot proceed with content analysis.")
 
 # Initialize Gemini model
 try:
@@ -30,7 +31,7 @@ try:
     logging.info("Gemini model initialized successfully")
 except Exception as e:
     logging.error(f"Failed to initialize Gemini model: {e}")
-    model = None
+    raise
 
 class Agent:
     def __init__(self, name, system_message):

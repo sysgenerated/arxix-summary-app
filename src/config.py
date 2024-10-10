@@ -28,6 +28,8 @@ PAPERS_FILE = 'daily_papers.json'
 LOG_FILE = 'arxiv_collector.log'
 
 # Gemini API Key
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
 if not GEMINI_API_KEY:
-    logging.warning("GEMINI_API_KEY environment variable is not set")
+    logging.warning("Neither GEMINI_API_KEY nor GOOGLE_API_KEY environment variable is set")
+else:
+    logging.info("API key found in environment variables")

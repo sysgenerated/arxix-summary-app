@@ -5,12 +5,16 @@ from arxiv_data_collector import main as collect_papers
 from content_analysis import run_content_analysis
 from visual_summary import create_visual_summary
 from website_generator import generate_website
+from config import GEMINI_API_KEY
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def run_pipeline():
     try:
         logging.info("Starting arXiv AI/ML summary pipeline...")
+        
+        if not GEMINI_API_KEY:
+            raise ValueError("API key is not set. Cannot proceed with the pipeline.")
         
         # Step 1: Collect papers
         logging.info("Collecting papers...")
