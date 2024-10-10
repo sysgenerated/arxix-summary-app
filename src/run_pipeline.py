@@ -13,25 +13,29 @@ def run_pipeline():
         logging.info("Starting arXiv AI/ML summary pipeline...")
         
         # Step 1: Collect papers
+        logging.info("Collecting papers...")
         collect_papers()
         
         # Step 2: Analyze content
+        logging.info("Analyzing content...")
         run_content_analysis()
         
         # Step 3: Create visual summary
+        logging.info("Creating visual summary...")
         create_visual_summary()
         
         # Step 4: Generate website
+        logging.info("Generating website...")
         generate_website()
         
         logging.info("Pipeline completed successfully.")
     except Exception as e:
-        logging.error(f"An error occurred during pipeline execution: {str(e)}")
+        logging.error(f"An error occurred during pipeline execution: {str(e)}", exc_info=True)
         raise
 
 if __name__ == "__main__":
     try:
         run_pipeline()
     except Exception as e:
-        logging.error(f"Pipeline failed: {str(e)}")
+        logging.error(f"Pipeline failed: {str(e)}", exc_info=True)
         sys.exit(1)

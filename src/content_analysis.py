@@ -15,14 +15,22 @@ def setup_logging():
         ]
     )
 
+setup_logging()
+
 # Configure Gemini API
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
+    logging.info("Gemini API configured successfully")
 else:
-    raise ValueError("GEMINI_API_KEY is not set. Please set the environment variable.")
+    logging.error("GEMINI_API_KEY is not set. Gemini API will not be available.")
 
 # Initialize Gemini model
-model = genai.GenerativeModel('gemini-1.5-flash')
+try:
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    logging.info("Gemini model initialized successfully")
+except Exception as e:
+    logging.error(f"Failed to initialize Gemini model: {e}")
+    model = None
 
 class Agent:
     def __init__(self, name, system_message):
@@ -30,6 +38,9 @@ class Agent:
         self.system_message = system_message
 
     def generate_response(self, message):
+        if not model:
+            logging.error("Gemini model is not available. Cannot generate response.")
+            return None
         prompt = f"{self.system_message}\n\nHuman: {message}\n\n{self.name}:"
         try:
             response = model.generate_content(prompt)

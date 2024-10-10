@@ -1,4 +1,8 @@
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # arXiv categories to fetch papers from
 CATEGORIES = ['cs.AI', 'cs.LG', 'cs.CL', 'cs.CV', 'stat.ML']
@@ -26,4 +30,4 @@ LOG_FILE = 'arxiv_collector.log'
 # Gemini API Key
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable is not set")
+    logging.warning("GEMINI_API_KEY environment variable is not set")

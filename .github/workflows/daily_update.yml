@@ -31,7 +31,9 @@ jobs:
     - name: Run pipeline
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: python src/run_pipeline.py
+      run: |
+        echo "GEMINI_API_KEY is set: ${{ secrets.GEMINI_API_KEY != '' }}"
+        python src/run_pipeline.py
 
     - name: List output directory
       run: ls -R output
