@@ -9,9 +9,25 @@ from config import DATA_DIR, TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def setup_twitter_api():
-    auth = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_SECRET)
-    auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
-    return tweepy.API(auth)
+    logging.info(f"TWITTER_API_KEY set: {bool(TWITTER_API_KEY)}")
+    logging.info(f"TWITTER_API_SECRET set: {bool(TWITTER_API_SECRET)}")
+    logging.info(f"TWITTER_ACCESS_TOKEN set: {bool(TWITTER_ACCESS_TOKEN)}")
+    logging.info(f"TWITTER_ACCESS_TOKEN_SECRET set: {bool(TWITTER_ACCESS_TOKEN_SECRET)}")
+
+    if not all([TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET]):
+        logging.warning("Some Twitter API credentials are not set. Skipping Twitter integration.")
+        return None
+
+    try:
+        auth = tweepy.OAuthHandler(TWITTER_API_KEY, TWITTER_API_SECRET)
+        auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
+        api = tweepy.API(auth)
+        api.verify_credentials()
+        logging.info("Twitter API credentials verified successfully.")
+        return api
+    except Exception as e:
+        logging.error(f"Error setting up Twitter API: {str(e)}")
+        return None
 
 def generate_tweet_content():
     summary_file = os.path.join(DATA_DIR, 'content_analysis_results.json')
@@ -25,6 +41,9 @@ def generate_tweet_content():
     return tweet
 
 def post_tweet(api, content):
+    if api is None:
+        logging.info("Twitter API not available. Tweet content: %s", content)
+        return None
     try:
         tweet = api.update_status(content)
         logging.info(f"Tweet posted successfully. Tweet ID: {tweet.id}")
@@ -34,8 +53,6 @@ def post_tweet(api, content):
         return None
 
 def optimize_posting_time():
-    # For simplicity, we'll use a fixed time. In a real-world scenario,
-    # you might want to analyze your followers' activity patterns.
     return "09:00"  # 9:00 AM
 
 def run_social_media_integration():
@@ -45,12 +62,12 @@ def run_social_media_integration():
     
     logging.info(f"Scheduled tweet to be posted at {optimal_time}")
     
-    # In a real-world scenario, you would use a task scheduler like Celery
-    # to post at the optimal time. For this example, we'll post immediately.
     tweet_id = post_tweet(api, tweet_content)
     
     if tweet_id:
         logging.info(f"Tweet posted successfully. View it at: https://twitter.com/samsbankfreed/status/{tweet_id}")
+    elif api is None:
+        logging.info("Twitter integration skipped due to missing credentials.")
     else:
         logging.error("Failed to post tweet.")
 

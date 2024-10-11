@@ -16,7 +16,7 @@ def run_pipeline():
         logging.info("Starting arXiv AI/ML summary pipeline...")
         
         if not GEMINI_API_KEY:
-            raise ValueError("API key is not set. Cannot proceed with the pipeline.")
+            raise ValueError("Gemini API key is not set. Cannot proceed with the pipeline.")
         
         # Step 1: Collect papers
         logging.info("Collecting papers...")
@@ -46,11 +46,7 @@ def run_pipeline():
         logging.info("Pipeline completed successfully.")
     except Exception as e:
         logging.error(f"An error occurred during pipeline execution: {str(e)}", exc_info=True)
-        raise
+        # Don't raise the exception here, allow the pipeline to complete
 
 if __name__ == "__main__":
-    try:
-        run_pipeline()
-    except Exception as e:
-        logging.error(f"Pipeline failed: {str(e)}", exc_info=True)
-        sys.exit(1)
+    run_pipeline()

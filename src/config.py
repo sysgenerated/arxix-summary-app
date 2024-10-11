@@ -46,6 +46,11 @@ TWITTER_API_SECRET = os.environ.get('TWITTER_API_SECRET')
 TWITTER_ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
 TWITTER_ACCESS_TOKEN_SECRET = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
 
+logging.info(f"TWITTER_API_KEY from env: {bool(TWITTER_API_KEY)}")
+logging.info(f"TWITTER_API_SECRET from env: {bool(TWITTER_API_SECRET)}")
+logging.info(f"TWITTER_ACCESS_TOKEN from env: {bool(TWITTER_ACCESS_TOKEN)}")
+logging.info(f"TWITTER_ACCESS_TOKEN_SECRET from env: {bool(TWITTER_ACCESS_TOKEN_SECRET)}")
+
 if not all([TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET]):
     logging.warning("Twitter API credentials are not set in environment variables")
 else:
