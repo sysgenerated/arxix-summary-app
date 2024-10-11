@@ -12,3 +12,4 @@ tweepy
 pytest
 python-dotenv==0.19.1
 pytz==2023.3
+tweepy==4.10.0

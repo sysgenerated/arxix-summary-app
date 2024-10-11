@@ -7,6 +7,7 @@ from content_analysis import run_content_analysis
 from visual_summary import create_visual_summary
 from website_generator import generate_website
 from config import GEMINI_API_KEY
+from social_media_integration import run_social_media_integration
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -37,6 +38,10 @@ def run_pipeline():
         # Step 4: Generate website
         logging.info("Generating website...")
         generate_website()
+        
+        # Step 5: Run social media integration
+        logging.info("Running social media integration...")
+        run_social_media_integration()
         
         logging.info("Pipeline completed successfully.")
     except Exception as e:

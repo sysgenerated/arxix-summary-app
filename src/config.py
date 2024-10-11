@@ -39,3 +39,14 @@ if not GEMINI_API_KEY:
     logging.warning("Neither GEMINI_API_KEY nor GOOGLE_API_KEY environment variable is set")
 else:
     logging.info("API key found in environment variables")
+
+# Twitter API Credentials
+TWITTER_API_KEY = os.environ.get('TWITTER_API_KEY')
+TWITTER_API_SECRET = os.environ.get('TWITTER_API_SECRET')
+TWITTER_ACCESS_TOKEN = os.environ.get('TWITTER_ACCESS_TOKEN')
+TWITTER_ACCESS_TOKEN_SECRET = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
+
+if not all([TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET]):
+    logging.warning("Twitter API credentials are not set in environment variables")
+else:
+    logging.info("Twitter API credentials found in environment variables")
