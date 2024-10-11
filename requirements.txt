@@ -1,4 +1,4 @@
-requests==2.26.0
+requests
 google-generativeai
 matplotlib
 wordcloud
@@ -10,6 +10,5 @@ arxiv
 jinja2
 tweepy
 pytest
-python-dotenv==0.19.1
-pytz==2023.3
-tweepy==4.10.0
+python-dotenv
+pytz
